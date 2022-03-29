@@ -41,10 +41,12 @@ if [[ "$SYSTEM_PATTERN" != "" ]]; then PATTERN="$SYSTEM_PATTERN}\|$DATA_PATTERN"
 
 for APP in `echo $PACKAGES | tr " " "\n" | grep "${PATTERN}"`; do
 	parentDir=''
-	if echo $APP | grep "$SYSTEM_PATTERN";then
+	if echo $APP | grep "${SYSTEM_PATTERN}";then
 		parentDir='system_apps/'
+		mkdir -vp "$parentDir"
 	fi
 	echo $APP
+	echo $parentDir
 
 	appPath=`echo $APP | sed 's/package://' | rev | cut -d "=" -f2- | rev`
 	appDir=${appPath%/*}
@@ -56,7 +58,7 @@ for APP in `echo $PACKAGES | tr " " "\n" | grep "${PATTERN}"`; do
 
 	# TODO $filter thingy
 	#if echo "$dataDir" | grep "$filter";then
-		mkdir "$dataDir"
+		mkdir "$parentDir""$dataDir"
 
 		if [[ "$AS" == "$AROOT" ]]; then
 	#
