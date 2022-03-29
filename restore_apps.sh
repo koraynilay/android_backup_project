@@ -57,7 +57,7 @@ do
 	echo $APP
 	echo "Installing $APP"
 	pushd /tmp
-	error=`$A install-multiple -r -t ${APP}`
+	error=`$A install-multiple -r -d -t ${APP}`
 	echo "error=$error"
 	rm *.apk
 	popd

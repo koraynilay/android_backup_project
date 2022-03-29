@@ -40,6 +40,10 @@ PATTERN=$DATA_PATTERN
 if [[ "$SYSTEM_PATTERN" != "" ]]; then PATTERN="$SYSTEM_PATTERN}\|$DATA_PATTERN" ; fi
 
 for APP in `echo $PACKAGES | tr " " "\n" | grep "${PATTERN}"`; do
+	parentDir=''
+	if echo $APP | grep "$SYSTEM_PATTERN";then
+		parentDir='system_apps/'
+	fi
 	echo $APP
 
 	appPath=`echo $APP | sed 's/package://' | rev | cut -d "=" -f2- | rev`
@@ -50,19 +54,24 @@ for APP in `echo $PACKAGES | tr " " "\n" | grep "${PATTERN}"`; do
 	echo $appDir
 	echo $dataDir
 
-        if [[ "$AS" == "$AROOT" ]]; then
-#
-# --- version for adb insecure
-#
-       		$AS "/dev/busybox tar -cv -C $appDir . 2>/dev/null | gzip" | gzip -d | pv -trabi 1 | gzip -c9 > app_${dataDir}.tar.gz
-       		$AS "/dev/busybox tar -cv -C /data/data/$dataDir . 2>/dev/null | gzip" | gzip -d | pv -trabi 1 | gzip -c9 > data_${dataDir}.tar.gz
-	else
-#
-# --- version for magisk rooted
-#
-		$AS "'cd $appDir && /dev/busybox tar czf - ./' 2>/dev/null" | pv -trabi 1 > app_${dataDir}.tar.gz
-		$AS "'cd /data/data/$dataDir && /dev/busybox tar czf - ./' 2>/dev/null" | pv -trabi 1 > data_${dataDir}.tar.gz
-	fi
+	# TODO $filter thingy
+	#if echo "$dataDir" | grep "$filter";then
+		mkdir "$dataDir"
+
+		if [[ "$AS" == "$AROOT" ]]; then
+	#
+	# --- version for adb insecure
+	#
+			$AS "/dev/busybox tar -cv -C $appDir . 2>/dev/null | gzip" | gzip -d | pv -trabi 1 | gzip -c9 > "${parentDir}""$dataDir"/app_${dataDir}.tar.gz
+			$AS "/dev/busybox tar -cv -C /data/data/$dataDir . 2>/dev/null | gzip" | gzip -d | pv -trabi 1 | gzip -c9 > "${parentDir}""$dataDir"/data_${dataDir}.tar.gz
+		else
+	#
+	# --- version for magisk rooted
+	#
+			$AS "'cd $appDir && /dev/busybox tar czf - ./' 2>/dev/null" | pv -trabi 1 > "${parentDir}""$dataDir"/app_${dataDir}.tar.gz
+			$AS "'cd /data/data/$dataDir && /dev/busybox tar czf - ./' 2>/dev/null" | pv -trabi 1 > "${parentDir}""$dataDir"/data_${dataDir}.tar.gz
+		fi
+	#fi
 done
 
 cleanup
