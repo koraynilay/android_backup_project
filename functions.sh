@@ -87,7 +87,10 @@ function checkPrerequisites()
 		exit 1
 	else
 		v=`echo $pv | head -n 1 | cut -d " " -f2`
-		if [ "$v" \< "1.6.6" ]; then
+		fd=$(echo $v | cut -d. -f3)
+		md=$(echo $v | cut -d. -f3)
+		ld=$(echo $v | cut -d. -f3)
+		if [ $fd -lt 1 ] && [ $md -lt 6 ] && [ $l -lt 6 ]; then
 			echo "$v of pv is lower than required version: 1.6.6"
 			exit 1
 		fi
